@@ -79,6 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
     disposeSalon3D(document.getElementById('salon3dCanvas'));
     salonSeleccionado = null;
   });
+  window.addEventListener('resize', ajustarPosicionPanelSalon);
   document.getElementById('btnAbrirReserva').addEventListener('click', () => {
     if (salonSeleccionado) abrirModalReserva(salonSeleccionado.id);
   });
@@ -156,6 +157,14 @@ function seleccionarSalon(salon) {
 
   // Mostrar info en el panel
   mostrarPanelSalon(salon, usuario);
+  ajustarPosicionPanelSalon();
+}
+
+function ajustarPosicionPanelSalon() {
+  const panel = document.getElementById('salonPanel');
+  if (panel.classList.contains('hidden')) return;
+  const hud = document.querySelector('.hud-header');
+  panel.style.top = `${hud.getBoundingClientRect().height}px`;
 }
 
 function getTipo(salonId) {

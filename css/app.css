@@ -204,7 +204,7 @@
 ═══════════════════════════════════════ */
 .salon-panel {
   position: absolute;
-  right: 0; top: 0; bottom: 0;
+  right: 0; top: 56px; bottom: 0;
   width: 360px;
   background: linear-gradient(to left, rgba(6,12,24,.98), rgba(10,20,40,.95));
   border-left: 1px solid var(--border-dark);
