@@ -8,15 +8,15 @@ import { SALONES, HORA_INICIO, HORA_FIN } from './data.js';
 import { horasLibres } from './reservas.js';
 
 const PLANET_COLORS = [
-  { base:'#286F9E', mid:'#16466D', dark:'#091D32', glow:'#83B8D1', cloud:'#D6E4E8', ring:false, bands:true  },
-  { base:'#A35C42', mid:'#673A34', dark:'#281B25', glow:'#D39773', cloud:'#E6C3A4', ring:false, bands:false },
-  { base:'#527A75', mid:'#315450', dark:'#132D32', glow:'#8FB4A5', cloud:'#D4D6B7', ring:false, bands:false },
-  { base:'#BB9860', mid:'#786044', dark:'#302838', glow:'#E5C88C', cloud:'#F1DFB7', ring:true,  bands:true  },
-  { base:'#A94F43', mid:'#6E3034', dark:'#2B1B2D', glow:'#D38A70', cloud:'#E8C5A2', ring:false, bands:false },
-  { base:'#69777C', mid:'#45535B', dark:'#202D37', glow:'#A4B6B8', cloud:'#D9D8C9', ring:false, bands:false },
-  { base:'#416F9A', mid:'#294B70', dark:'#13283F', glow:'#91B9D0', cloud:'#D7E0DC', ring:false, bands:true  },
-  { base:'#758052', mid:'#4C573D', dark:'#222D2A', glow:'#B3B18A', cloud:'#DFD4AD', ring:false, bands:false },
-  { base:'#86725F', mid:'#574A45', dark:'#28242A', glow:'#C2A98B', cloud:'#E5D3B6', ring:true,  bands:true  },
+  { base:'#1E5478', mid:'#123953', dark:'#081B2B', glow:'#6990A7', cloud:'#B8C9C8', ring:false, bands:true  },
+  { base:'#784433', mid:'#4F2F2D', dark:'#211922', glow:'#A9755C', cloud:'#C8AA91', ring:false, bands:false },
+  { base:'#3D625F', mid:'#284542', dark:'#112629', glow:'#718E83', cloud:'#B4BCA7', ring:false, bands:false },
+  { base:'#887047', mid:'#5C4938', dark:'#29242B', glow:'#B49A68', cloud:'#D1BF98', ring:true,  bands:true  },
+  { base:'#7F3D36', mid:'#54282F', dark:'#241A28', glow:'#AB6F5D', cloud:'#CFAB92', ring:false, bands:false },
+  { base:'#4D5C63', mid:'#354047', dark:'#1C2930', glow:'#879597', cloud:'#B9BCB1', ring:false, bands:false },
+  { base:'#325779', mid:'#203B59', dark:'#102133', glow:'#7596A9', cloud:'#B8C6BF', ring:false, bands:true  },
+  { base:'#58633F', mid:'#38452E', dark:'#1D2824', glow:'#969C70', cloud:'#C7BE96', ring:false, bands:false },
+  { base:'#675549', mid:'#473B3C', dark:'#221F26', glow:'#A78E75', cloud:'#CCBA9F', ring:true,  bands:true  },
 ];
 
 let canvas, ctx, W, H, cx, cy;
@@ -26,7 +26,9 @@ let animId;
 let hoveredPlanet  = null;
 let onSelectSalon  = () => {};
 
-const PLANET_SIZES = [52, 46, 43, 55, 48, 42, 45, 43, 51];
+const PLANET_SIZES = [35, 32, 30, 37, 34, 29, 31, 30, 35];
+const ORBIT_RATIOS = [0.22, 0.415, 0.285, 0.48, 0.35, 0.4475, 0.2525, 0.3825, 0.3175];
+const PLANET_SPEEDS = [0.00023, -0.00032, 0.00027, -0.00036, -0.00029, 0.00021, -0.00034, 0.00025, -0.00019];
 
 export function initSolarMap(c, onSelect) {
   canvas = c;
@@ -63,14 +65,18 @@ function resize() {
 }
 
 function buildPlanets() {
-  const orbitR = Math.min(W, H) * 0.36;
+  const orbitScale = Math.min(W, H);
+  const verticalStretch = Math.min(1.55, Math.max(1, H / W));
   const sizeScale = Math.min(1, Math.max(0.62, Math.min(W / 900, H / 650)));
 
   planets = SALONES.map((salon, i) => {
     const angle    = (i / SALONES.length) * Math.PI * 2 - Math.PI / 2;
+    const orbitR   = orbitScale * ORBIT_RATIOS[i];
     const size     = PLANET_SIZES[i] * sizeScale;
+    const orbitRx  = Math.min(orbitR, W * 0.48 - size - 6);
+    const orbitRy  = Math.min(orbitR * verticalStretch, H * 0.38);
     const color    = PLANET_COLORS[i];
-    const speed    = .000035;
+    const speed    = PLANET_SPEEDS[i];
     const libre    = horasLibres(salon.id).length;
     const occupied = (HORA_FIN - HORA_INICIO) - libre;
     const details = Array.from({ length: 30 }, () => {
@@ -86,7 +92,7 @@ function buildPlanets() {
       };
     });
 
-    return { salon, angle, orbitR, size, color, speed, libre, occupied, details, x: 0, y: 0, hovered: false };
+    return { salon, angle, orbitRx, orbitRy, size, color, speed, libre, occupied, details, x: 0, y: 0, hovered: false };
   });
 }
 
@@ -139,17 +145,17 @@ function draw() {
   // Anillos de órbita
   planets.forEach(p => {
     ctx.beginPath();
-    ctx.arc(cx, cy, p.orbitR, 0, Math.PI * 2);
-    ctx.strokeStyle = p.hovered ? 'rgba(200,164,90,.25)' : 'rgba(30,60,120,.2)';
-    ctx.lineWidth = p.hovered ? 1.5 : .8;
+    ctx.ellipse(cx, cy, p.orbitRx, p.orbitRy, 0, 0, Math.PI * 2);
+    ctx.strokeStyle = p.hovered ? 'rgba(200,164,90,.5)' : `${p.color.glow}42`;
+    ctx.lineWidth = p.hovered ? 1.5 : 1;
     ctx.stroke();
   });
 
   // Planetas
   planets.forEach(p => {
     p.angle += p.speed;
-    p.x = cx + Math.cos(p.angle) * p.orbitR;
-    p.y = cy + Math.sin(p.angle) * p.orbitR;
+    p.x = cx + Math.cos(p.angle) * p.orbitRx;
+    p.y = cy + Math.sin(p.angle) * p.orbitRy;
 
     const isHovered = p === hoveredPlanet;
     const pulse = 1 + 0.03 * Math.sin(now * 2 + p.angle);
@@ -258,10 +264,11 @@ function draw() {
     ctx.fill();
     ctx.shadowBlur = 0;
 
-    ctx.fillStyle = isHovered ? '#E8C97A' : 'rgba(200,220,255,.8)';
+    ctx.fillStyle = isHovered ? '#E8C97A' : 'rgba(200,210,215,.78)';
     ctx.font = isHovered ? 'bold 13px "Segoe UI"' : '11px "Segoe UI"';
     ctx.textAlign = 'center';
-    ctx.fillText(p.salon.nombre, p.x, p.y + R + 16);
+    const labelX = Math.max(46, Math.min(W - 46, p.x));
+    ctx.fillText(p.salon.nombre, labelX, p.y + R + 16);
 
     if (isHovered) {
       ctx.beginPath();

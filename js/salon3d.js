@@ -6,13 +6,13 @@
 
 import * as THREE from '../node_modules/three/build/three.module.js';
 
-let _raf, _renderer;
+const renderers = new Map();
 
 export function initSalon3D(canvas, tipo) {
-  disposeSalon3D();
+  disposeSalon3D(canvas);
 
   const W = canvas.parentElement.clientWidth || 360;
-  const H = 220;
+  const H = canvas.parentElement.clientHeight || 220;
 
   const scene  = new THREE.Scene();
   scene.background = new THREE.Color(0x040A18);
@@ -20,15 +20,16 @@ export function initSalon3D(canvas, tipo) {
 
   const camera = new THREE.PerspectiveCamera(50, W / H, 0.1, 100);
 
+  let renderer;
   try {
-    _renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
   } catch {
     return;
   }
-  _renderer.setSize(W, H);
-  _renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  _renderer.shadowMap.enabled = true;
-  _renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.setSize(W, H);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
   scene.add(new THREE.AmbientLight(0x2A4060, 0.85));
   const spot = new THREE.SpotLight(0xC8E8FF, 1.4, 22, Math.PI * 0.35, 0.5, 1);
@@ -52,22 +53,34 @@ export function initSalon3D(canvas, tipo) {
   let angle = 0.6;
   const radius = tipo === 'auditorio' ? 11 : tipo === 'lab' ? 9.5 : 7.2;
   const height = tipo === 'auditorio' ? 7.5 : tipo === 'lab' ? 6 : 4.2;
+  const instance = { renderer, raf: null };
+  renderers.set(canvas, instance);
 
   const tick = () => {
-    _raf = requestAnimationFrame(tick);
+    instance.raf = requestAnimationFrame(tick);
     angle += 0.0035;
     camera.position.x = Math.sin(angle) * radius;
     camera.position.z = Math.cos(angle) * radius;
     camera.position.y = height;
     camera.lookAt(0, 0.5, 0);
-    _renderer.render(scene, camera);
+    renderer.render(scene, camera);
   };
   tick();
 }
 
-export function disposeSalon3D() {
-  if (_raf) cancelAnimationFrame(_raf);
-  if (_renderer) { _renderer.dispose(); _renderer = null; }
+export function disposeSalon3D(canvas = null) {
+  const instances = canvas
+    ? [renderers.get(canvas)]
+    : [...renderers.values()];
+
+  instances.forEach(instance => {
+    if (!instance) return;
+    cancelAnimationFrame(instance.raf);
+    instance.renderer.dispose();
+  });
+
+  if (canvas) renderers.delete(canvas);
+  else renderers.clear();
 }
 
 const MAT = {
@@ -162,9 +175,8 @@ function addPCSet(parent, x, y, z, ry = 0) {
 function buildAuditorio(scene) {
   const shape = new THREE.Shape();
   const radius = 5.2;
-  shape.moveTo(0, radius);
-  shape.lineTo(radius, 0);
-  shape.lineTo(0, -radius);
+  shape.moveTo(-radius, 0);
+  shape.absarc(0, 0, radius, Math.PI, 0, true);
   shape.lineTo(-radius, 0);
   shape.closePath();
 
@@ -177,46 +189,41 @@ function buildAuditorio(scene) {
   floor.receiveShadow = true;
   scene.add(floor);
 
-  const corners = [[0, radius], [radius, 0], [0, -radius], [-radius, 0]];
-  for (let i = 0; i < 4; i++) {
-    const [ax, az] = corners[i];
-    const [bx, bz] = corners[(i + 1) % 4];
-    const dx = bx - ax, dz = bz - az;
+  const wallSegments = 32;
+  for (let i = 0; i < wallSegments; i++) {
+    const a0 = (i / wallSegments) * Math.PI;
+    const a1 = ((i + 1) / wallSegments) * Math.PI;
+    const x0 = Math.cos(a0) * radius;
+    const z0 = -Math.sin(a0) * radius;
+    const x1 = Math.cos(a1) * radius;
+    const z1 = -Math.sin(a1) * radius;
+    const dx = x1 - x0, dz = z1 - z0;
     const len = Math.hypot(dx, dz);
-    const mx = (ax + bx) / 2, mz = (az + bz) / 2;
-    const ang = Math.atan2(dz, dx);
-    scene.add(box(len, 2.6, 0.12, MAT.wall(), mx, 1.3, mz, -ang));
+    const mx = (x0 + x1) / 2, mz = (z0 + z1) / 2;
+    scene.add(box(len + 0.02, 2.6, 0.12, MAT.wall(),
+                  mx, 1.3, mz, -Math.atan2(dz, dx)));
   }
 
-  const edges = [[0, radius], [radius, 0], [0, -radius], [-radius, 0]];
-  edges.forEach(([ax, az], i) => {
-    const [bx, bz] = edges[(i + 1) % edges.length];
-    const dx = bx - ax, dz = bz - az;
-    const len = Math.hypot(dx, dz);
-    const tx = dx / len, tz = dz / len;
-    const nx = -tz, nz = tx;
-    const stepLength = len * 0.82;
+  const rowRadii = [2.1, 2.85, 3.6, 4.35];
+  rowRadii.forEach((rowRadius, row) => {
+    const y = 0.14 + row * 0.24;
+    const seatCount = 8 + row * 2;
 
-    for (let row = 0; row < 4; row++) {
-      const inset = 0.55 + row * 0.62;
-      const y = 0.16 + row * 0.24;
-      const centerX = (ax + bx) / 2 - nx * inset;
-      const centerZ = (az + bz) / 2 - nz * inset;
-      scene.add(box(stepLength - row * 0.18, 0.16, 0.62, MAT.step(),
-                    centerX, y - 0.08, centerZ, -Math.atan2(dz, dx)));
+    for (let seat = 0; seat < seatCount; seat++) {
+      const angle = Math.PI * (seat + 0.5) / seatCount;
+      const x = Math.cos(angle) * rowRadius;
+      const z = -Math.sin(angle) * rowRadius;
+      const facing = Math.atan2(-x, 0.45 - z);
+      const tangent = angle - Math.PI / 2;
 
-      for (let seat = 0; seat < 7; seat++) {
-        const along = (seat - 3) * (stepLength - row * 0.18) / 7;
-        const x = centerX + tx * along;
-        const z = centerZ + tz * along;
-        addChair(scene, x, y, z, Math.atan2(-x, -z));
-      }
+      scene.add(box(0.58, 0.14, 0.6, MAT.step(), x, y - 0.07, z, -tangent));
+      addChair(scene, x, y, z, facing);
     }
   });
 
-  scene.add(box(1.1, 0.55, 0.45, MAT.desk(), 0, 0.28, 0));
-  scene.add(box(0.9, 0.7, 0.06, MAT.tvFrame(), 0, 1.35, -0.15));
-  scene.add(box(0.82, 0.58, 0.02, MAT.tv(), 0, 1.35, -0.1));
+  scene.add(box(2.2, 0.36, 0.9, MAT.desk(), 0, 0.18, 0.55));
+  scene.add(box(1.1, 0.7, 0.06, MAT.tvFrame(), 0, 1.35, 0.45));
+  scene.add(box(1.02, 0.58, 0.02, MAT.tv(), 0, 1.35, 0.49));
 }
 
 // ═══════════════════════════════════════════════

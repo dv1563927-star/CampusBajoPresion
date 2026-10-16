@@ -162,30 +162,43 @@
      MODAL: FORMULARIO DE RESERVA
 ═══════════════════════════════════════════════ -->
 <div id="modalReserva" class="modal-overlay hidden">
-  <div class="modal-wf">
+  <div class="modal-wf modal-wf-booking">
     <button class="modal-close-wf" data-close="modalReserva">✕</button>
     <h3 class="modal-title-wf">⬡ SOLICITAR RESERVA</h3>
 
-    <div class="form-group">
-      <label>MATERIA / ACTIVIDAD</label>
-      <input type="text" id="resMateria" placeholder="Ej: Cálculo I…"/>
-    </div>
-    <div class="form-group">
-      <label>NÚMERO DE ESTUDIANTES</label>
-      <input type="number" id="resEstudiantes" min="1" placeholder="Ej: 28"/>
-    </div>
-    <div id="sugerenciaWrap" class="hint-box hidden"></div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>HORA INICIO</label>
-        <select id="resInicio"></select>
+    <div class="booking-layout">
+      <div class="booking-fields">
+        <div class="form-group">
+          <label>MATERIA / ACTIVIDAD</label>
+          <input type="text" id="resMateria" placeholder="Ej: Cálculo I…"/>
+        </div>
+        <div class="form-group">
+          <label>NÚMERO DE ESTUDIANTES</label>
+          <input type="number" id="resEstudiantes" min="1" placeholder="Ej: 28"/>
+        </div>
+        <div id="sugerenciaWrap" class="hint-box hidden"></div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>HORA INICIO</label>
+            <select id="resInicio"></select>
+          </div>
+          <div class="form-group">
+            <label>HORA FIN</label>
+            <select id="resFin"></select>
+          </div>
+        </div>
+        <div id="conflictoMsg" class="error-wf hidden"></div>
       </div>
-      <div class="form-group">
-        <label>HORA FIN</label>
-        <select id="resFin"></select>
-      </div>
+
+      <aside class="booking-preview">
+        <span class="booking-preview-label">VISTA DEL SALÓN</span>
+        <strong id="bookingPreviewName">—</strong>
+        <div class="booking-preview-canvas">
+          <canvas id="bookingSalonCanvas"></canvas>
+        </div>
+      </aside>
     </div>
-    <div id="conflictoMsg" class="error-wf hidden"></div>
+
     <div class="modal-actions-wf">
       <button class="btn-wf-ghost" data-close="modalReserva">CANCELAR</button>
       <button class="btn-wf btn-wf-sm" id="btnConfirmarReserva">

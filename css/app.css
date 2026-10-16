@@ -378,6 +378,45 @@
 .modal-wf-sm  { max-width: 400px; }
 .modal-wf-lg  { max-width: 700px; }
 .modal-wf-xl  { max-width: 95vw; max-height: 90vh; overflow-y: auto; }
+.modal-wf-booking { max-width: 860px; max-height: 90vh; overflow-y: auto; }
+
+.booking-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
+  gap: 1.4rem;
+  align-items: start;
+}
+
+.booking-preview {
+  padding-left: 1rem;
+  border-left: 1px solid var(--border-dark);
+}
+
+.booking-preview-label {
+  display: block;
+  color: var(--text-gold);
+  font-size: .62rem;
+  font-weight: 700;
+  margin-bottom: .25rem;
+}
+
+.booking-preview strong {
+  display: block;
+  min-height: 1.5rem;
+  font-size: .88rem;
+  text-transform: uppercase;
+}
+
+.booking-preview-canvas {
+  height: 190px;
+  margin-top: .55rem;
+  background: radial-gradient(ellipse at center, rgba(28,48,69,.7), rgba(2,4,8,.96));
+}
+
+#bookingSalonCanvas {
+  width: 100% !important;
+  height: 100% !important;
+}
 
 .modal-close-wf {
   position: absolute;
@@ -560,6 +599,14 @@ tbody td { padding: .6rem .85rem; }
 /* Responsive app */
 @media (max-width: 700px) {
   .salon-panel { width: 100%; }
+  .booking-layout { grid-template-columns: minmax(0, 1fr); }
+  .booking-preview {
+    grid-row: 1;
+    padding: 1rem 0 0;
+    border-left: 0;
+    border-top: 1px solid var(--border-dark);
+  }
+  .booking-preview-canvas { height: 160px; }
   #orbitCenterCanvas { width: 120px !important; height: 150px !important; }
   .orbit-hand-left  { right: calc(100% + 5px); }
   .orbit-hand-right { left:  calc(100% + 5px); }

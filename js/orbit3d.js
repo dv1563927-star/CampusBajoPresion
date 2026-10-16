@@ -3,7 +3,7 @@
  * ----------
  * Modelo 3D del astronauta Orbit (CampusLands) fiel a la mascota:
  * blanco, visor negro con cara pixelada, bandera de Colombia,
- * brazos cruzados, jetpack, auriculares.
+ * manos abiertas, jetpack y auriculares.
  */
 
 import * as THREE from '../node_modules/three/build/three.module.js';
@@ -99,6 +99,35 @@ function makeColFlagTexture() {
   return tex;
 }
 
+function addOpenHand(parent, side) {
+  const hand = new THREE.Group();
+  hand.position.set(side * 0.8, 0.13, 0.14);
+  hand.scale.x = side;
+
+  const glove = new THREE.MeshPhongMaterial({ color: C.suitMid, shininess: 28 });
+  const palm = new THREE.Mesh(new THREE.SphereGeometry(0.11, 14, 12), glove);
+  palm.scale.set(1.05, 0.7, 0.72);
+  palm.position.set(0.04, 0, 0);
+  hand.add(palm);
+
+  for (let finger = 0; finger < 4; finger++) {
+    const segment = new THREE.Mesh(
+      new THREE.CapsuleGeometry(0.022, 0.085, 4, 8), glove
+    );
+    segment.position.set(0.16, (finger - 1.5) * 0.045, 0.01);
+    segment.rotation.z = -Math.PI / 2;
+    hand.add(segment);
+  }
+
+  const thumb = new THREE.Mesh(
+    new THREE.CapsuleGeometry(0.024, 0.07, 4, 8), glove
+  );
+  thumb.position.set(0.03, -0.1, 0.02);
+  thumb.rotation.z = Math.PI / 3;
+  hand.add(thumb);
+  parent.add(hand);
+}
+
 // ═══════════════════════════════════════════════
 //  CONSTRUCCIÓN DEL ASTRONAUTA
 // ═══════════════════════════════════════════════
@@ -142,11 +171,29 @@ function buildOrbit() {
   g.add(torso);
 
   const chest = new THREE.Mesh(
-    new THREE.BoxGeometry(0.18, 0.22, 0.06),
+    new THREE.BoxGeometry(0.24, 0.28, 0.07),
     mat(C.suitDark)
   );
   chest.position.set(0, 0.05, 0.32);
   g.add(chest);
+
+  const chestScreen = new THREE.Mesh(
+    new THREE.BoxGeometry(0.12, 0.09, 0.015),
+    new THREE.MeshPhongMaterial({
+      color: 0x142536, emissive: C.accentBlue, emissiveIntensity: 0.45
+    })
+  );
+  chestScreen.position.set(0, 0.12, 0.365);
+  g.add(chestScreen);
+
+  [-1, 1].forEach(side => {
+    const indicator = new THREE.Mesh(
+      new THREE.SphereGeometry(0.025, 10, 8),
+      new THREE.MeshBasicMaterial({ color: side < 0 ? 0x63B5D4 : 0xD6C995 })
+    );
+    indicator.position.set(side * 0.075, -0.08, 0.37);
+    g.add(indicator);
+  });
 
   const chestBtn = new THREE.Mesh(
     new THREE.BoxGeometry(0.08, 0.06, 0.02),
@@ -165,6 +212,14 @@ function buildOrbit() {
   belt.rotation.x = Math.PI / 2;
   g.add(belt);
 
+  const collar = new THREE.Mesh(
+    new THREE.TorusGeometry(0.25, 0.045, 8, 24),
+    mat(C.suitMid)
+  );
+  collar.position.set(0, 0.32, 0.02);
+  collar.rotation.x = Math.PI / 2;
+  g.add(collar);
+
   // ── BRAZOS EXTENDIDOS ──
   const armL = new THREE.Mesh(
     new THREE.CapsuleGeometry(0.10, 0.32, 6, 12),
@@ -174,13 +229,6 @@ function buildOrbit() {
   armL.rotation.z = Math.PI / 2;
   g.add(armL);
 
-  const gloveL = new THREE.Mesh(
-    new THREE.SphereGeometry(0.13, 12, 10),
-    mat(C.suitMid)
-  );
-  gloveL.position.set(-0.86, 0.12, 0.15);
-  g.add(gloveL);
-
   const armR = new THREE.Mesh(
     new THREE.CapsuleGeometry(0.10, 0.32, 6, 12),
     mat(C.suitLight)
@@ -189,12 +237,16 @@ function buildOrbit() {
   armR.rotation.z = -Math.PI / 2;
   g.add(armR);
 
-  const gloveR = new THREE.Mesh(
-    new THREE.SphereGeometry(0.13, 12, 10),
-    mat(C.suitMid)
-  );
-  gloveR.position.set(0.86, 0.12, 0.15);
-  g.add(gloveR);
+  [-1, 1].forEach(side => {
+    const cuff = new THREE.Mesh(
+      new THREE.TorusGeometry(0.105, 0.022, 6, 16),
+      mat(C.suitDark)
+    );
+    cuff.position.set(side * 0.78, 0.12, 0.13);
+    cuff.rotation.y = Math.PI / 2;
+    g.add(cuff);
+    addOpenHand(g, side);
+  });
 
   // Hombros + bandera
   [-1, 1].forEach(s => {
@@ -343,7 +395,7 @@ export function initOrbitLogin(canvas) {
 
   const scene  = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(45, W / H, 0.1, 100);
-  camera.position.set(0, 0.3, 3.2);
+  camera.position.set(0, 0.25, 3.8);
   camera.lookAt(0, 0.15, 0);
 
   try {
@@ -366,7 +418,7 @@ export function initOrbitLogin(canvas) {
   scene.add(makeParticles(220, 3.5));
 
   const orbit = buildOrbit();
-  orbit.scale.setScalar(1.35);
+  orbit.scale.setScalar(1.12);
   orbit.position.y = -0.1;
   scene.add(orbit);
 
@@ -402,7 +454,7 @@ let _centerRaf, _centerRenderer, _centerExprTimer;
 export function initOrbitCenter(canvas) {
   const scene  = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(50, 180 / 220, 0.1, 100);
-  camera.position.set(0, 0.3, 2.9);
+  camera.position.set(0, 0.3, 3.15);
   camera.lookAt(0, 0.1, 0);
 
   try {

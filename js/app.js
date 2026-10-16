@@ -10,7 +10,7 @@
  *   ui → render, modales, toasts
  */
 
-import { HORA_INICIO, HORA_FIN } from './data.js';
+import { HORA_INICIO, HORA_FIN, SALONES } from './data.js';
 import { initAuth, onLogin, onLogout, getCurrentUser } from './auth.js';
 import {
   verificarDisponibilidad,
@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Panel lateral
   document.getElementById('btnClosePanel').addEventListener('click', () => {
     ocultarPanelSalon();
-    disposeSalon3D();
+    disposeSalon3D(document.getElementById('salon3dCanvas'));
     salonSeleccionado = null;
   });
   document.getElementById('btnAbrirReserva').addEventListener('click', () => {
@@ -91,6 +91,12 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('handHorario').addEventListener('click', () => {
     renderHorario();
     openModal('modalHorario');
+  });
+
+  document.getElementById('modalReserva').addEventListener('click', e => {
+    if (e.target.id === 'modalReserva' || e.target.closest?.('[data-close="modalReserva"]')) {
+      disposeSalon3D(document.getElementById('bookingSalonCanvas'));
+    }
   });
 
   // Cancelar reserva
@@ -191,6 +197,17 @@ function abrirModalReserva(salonId = null) {
   }
 
   openModal('modalReserva');
+  const salonVista = SALONES.find(salon => salon.id === salonId) ?? salonSeleccionado;
+  const previewName = document.getElementById('bookingPreviewName');
+  const previewCanvas = document.getElementById('bookingSalonCanvas');
+
+  if (salonVista) {
+    previewName.textContent = salonVista.nombre;
+    initSalon3D(previewCanvas, getTipo(salonVista.id));
+  } else {
+    previewName.textContent = 'SALÓN POR ASIGNAR';
+    disposeSalon3D(previewCanvas);
+  }
 }
 
 /* ── PASO 1: Buscar salón ───────────────────────────────────── */
@@ -213,6 +230,7 @@ function handleBuscarSalon() {
 
   sugerenciaPendiente = { ...resultado, datosFormulario: datos };
 
+  disposeSalon3D(document.getElementById('bookingSalonCanvas'));
   closeModal('modalReserva');
   mostrarModalSugerencia(sugerenciaPendiente);
 }
