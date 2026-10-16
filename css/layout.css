@@ -1,0 +1,328 @@
+/* =============================================================
+   layout.css — Navbar, Tabs, Grids, Fondo estelar, Responsive
+   ============================================================= */
+
+/* ─────────────────────────────────────────
+   FONDO ESTELAR GLOBAL
+   Las estrellas son pseudo-elementos en body
+   generados con box-shadow (sin imágenes externas)
+───────────────────────────────────────── */
+
+/* Capa de estrellas pequeñas */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    radial-gradient(1px 1px at  8%  12%, rgba(255,255,255,.7) 0%, transparent 100%),
+    radial-gradient(1px 1px at 18%  45%, rgba(255,255,255,.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 25%  78%, rgba(255,255,255,.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 35%  23%, rgba(255,255,255,.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 42%  90%, rgba(255,255,255,.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 55%  34%, rgba(255,255,255,.7) 0%, transparent 100%),
+    radial-gradient(1px 1px at 62%  67%, rgba(255,255,255,.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 70%  11%, rgba(255,255,255,.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 78%  56%, rgba(255,255,255,.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 88%  82%, rgba(255,255,255,.7) 0%, transparent 100%),
+    radial-gradient(1px 1px at 93%  29%, rgba(255,255,255,.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at  4%  60%, rgba(255,255,255,.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 14%  88%, rgba(255,255,255,.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 48%  50%, rgba(255,255,255,.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 82%  40%, rgba(255,255,255,.5) 0%, transparent 100%),
+    /* Estrellas ligeramente más grandes */
+    radial-gradient(1.5px 1.5px at 30%  15%, rgba(255,255,255,.9) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 65%  75%, rgba(255,255,255,.8) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 50%  5%,  rgba(255,255,255,.9) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 90%  55%, rgba(255,255,255,.7) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 10%  40%, rgba(255,255,255,.8) 0%, transparent 100%),
+    /* Nebulosas difusas de color */
+    radial-gradient(120px 80px at 15%  20%, rgba(124,58,237,.07) 0%, transparent 70%),
+    radial-gradient(160px 100px at 75% 70%, rgba(37,99,235,.06)  0%, transparent 70%),
+    radial-gradient(100px 140px at 85% 10%, rgba(6,182,212,.05)  0%, transparent 70%),
+    radial-gradient(90px 90px  at 45% 85%, rgba(124,58,237,.06)  0%, transparent 70%);
+}
+
+/* Estrellas que parpadean (2 cuerpos celestes grandes) */
+body::after {
+  content: '✦ ✧';
+  position: fixed;
+  font-size: .5rem;
+  color: rgba(255,255,255,.6);
+  top: 8%; right: 12%;
+  pointer-events: none;
+  z-index: 0;
+  letter-spacing: 4rem;
+  animation: twinkle 3.5s ease-in-out infinite;
+}
+
+/* Todo el contenido por encima del fondo */
+#loginScreen,
+#appScreen { position: relative; z-index: 1; }
+
+/* ─────────────────────────────────────────
+   LOGIN SCREEN
+───────────────────────────────────────── */
+#loginScreen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+/* ─────────────────────────────────────────
+   APP SCREEN
+───────────────────────────────────────── */
+#appScreen {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ─────────────────────────────────────────
+   NAVBAR — espacial
+───────────────────────────────────────── */
+.navbar {
+  background: rgba(13,16,37,.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-color);
+  padding: .8rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* Línea degradada azul→morado en el bottom */
+.navbar::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 100%; height: 1px;
+  background: linear-gradient(90deg, var(--space-purple) 0%, var(--space-blue) 40%, transparent 80%);
+}
+
+.navbar-brand {
+  font-size: 1.1rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  letter-spacing: -.01em;
+  white-space: nowrap;
+}
+
+.brand-name { color: var(--space-purple-l); }
+.brand-sub  { color: var(--text-muted); font-weight: 400; font-size: .83rem; }
+
+/* Ícono Orbit pequeño en navbar */
+.navbar-orbit {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: rgba(124,58,237,.15);
+  border: 1px solid var(--border-purple);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.navbar-user { display: flex; align-items: center; gap: .7rem; }
+
+.avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--space-purple), var(--space-blue));
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800;
+  font-size: .88rem;
+  flex-shrink: 0;
+  box-shadow: 0 2px 10px var(--glow-purple);
+}
+
+.user-info strong { display: block; font-size: .87rem; }
+.user-info small  { display: block; color: var(--text-muted); font-size: .68rem; }
+
+/* ─────────────────────────────────────────
+   TABS
+───────────────────────────────────────── */
+.tabs {
+  background: rgba(13,16,37,.75);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  gap: .1rem;
+  padding: 0 1.5rem;
+  overflow-x: auto;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tabs { scrollbar-width: none; }
+
+.tab-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  padding: .85rem 1.1rem;
+  font-size: .87rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color .16s, border-color .16s, background .16s;
+  display: flex; align-items: center; gap: .35rem;
+  white-space: nowrap;
+}
+
+.tab-btn:hover {
+  color: var(--text-primary);
+  background: rgba(124,58,237,.06);
+}
+
+.tab-btn.active {
+  color: var(--space-purple-l);
+  border-bottom-color: var(--space-purple);
+}
+
+/* ─────────────────────────────────────────
+   CONTENIDO
+───────────────────────────────────────── */
+.content { padding: 1.5rem; flex: 1; }
+
+/* ─────────────────────────────────────────
+   SECTION HEADER
+───────────────────────────────────────── */
+.section-header {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap; gap: .75rem;
+  margin-bottom: 1.4rem;
+}
+.section-header h2 { font-size: 1.22rem; font-weight: 800; }
+.section-sub { color: var(--text-muted); font-size: .82rem; margin-top: .15rem; }
+
+/* ─────────────────────────────────────────
+   FILTER BAR
+───────────────────────────────────────── */
+.filter-bar { display: flex; gap: .45rem; flex-wrap: wrap; }
+
+.filter-bar input,
+.filter-bar select {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  padding: .45rem .85rem;
+  font-size: .82rem;
+  outline: none;
+  transition: border-color .16s;
+}
+.filter-bar input:focus,
+.filter-bar select:focus { border-color: var(--space-purple); }
+.filter-bar select option { background: var(--bg-surface); }
+.filter-bar input { width: 152px; }
+
+/* ─────────────────────────────────────────
+   STATS GRID
+───────────────────────────────────────── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+  gap: .9rem;
+  margin-bottom: 1.4rem;
+}
+
+/* ─────────────────────────────────────────
+   SALONES GRID
+───────────────────────────────────────── */
+.salones-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(285px, 1fr));
+  gap: 1.1rem;
+}
+
+/* ─────────────────────────────────────────
+   HORARIO GENERAL
+───────────────────────────────────────── */
+.horario-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.horario-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 3px;
+  font-size: .77rem;
+}
+
+.horario-table thead { background: var(--bg-raised); }
+
+.horario-table th {
+  padding: .6rem .45rem;
+  font-size: .66rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--text-muted);
+  white-space: nowrap;
+  text-align: center;
+}
+.horario-table th:first-child,
+.horario-table th:nth-child(2) { text-align: left; }
+
+.horario-table td { padding: .38rem .45rem; text-align: center; white-space: nowrap; }
+.horario-table td:first-child { font-weight: 600; text-align: left; padding-left: .75rem; }
+.horario-table td:nth-child(2) { color: var(--space-cyan); }
+
+.cell-free  {
+  background: rgba(37,99,235,.15);
+  border-radius: 4px;
+  font-size: .63rem;
+  color: var(--space-blue-l);
+}
+.cell-taken {
+  background: rgba(124,58,237,.25);
+  border-radius: 4px;
+  font-size: .64rem;
+  color: var(--space-purple-l);
+}
+
+.legend {
+  display: flex; gap: 1.2rem;
+  margin-top: .75rem;
+  font-size: .75rem;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+}
+.legend-dot {
+  width: 12px; height: 12px;
+  border-radius: 3px;
+  display: inline-block;
+  margin-right: .32rem;
+  vertical-align: middle;
+}
+
+/* ─────────────────────────────────────────
+   RESPONSIVE
+───────────────────────────────────────── */
+@media (max-width: 640px) {
+  .navbar-brand .brand-sub  { display: none; }
+  .tabs     { padding: 0 .75rem; }
+  .tab-btn  { padding: .72rem .7rem; font-size: .8rem; }
+  .content  { padding: 1rem; }
+  .section-header { flex-direction: column; align-items: flex-start; }
+  .salones-grid   { grid-template-columns: 1fr; }
+  .stats-grid     { grid-template-columns: 1fr 1fr; }
+  .modal          { padding: 1.5rem 1.2rem; }
+  .modal-actions  { flex-direction: column; }
+  .form-row       { grid-template-columns: 1fr; }
+  .login-card     { padding: 1.8rem 1.3rem; }
+}
+
+@media (max-width: 400px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .hint-grid  { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,267 @@
+/* =================================================================
+   login.css — Pantalla de login estilo Warframe split-screen
+================================================================= */
+
+/* Canvas de estrellas de fondo */
+#starsCanvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ── Contenedor principal del login ── */
+#loginScreen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: stretch;
+  z-index: 10;
+  animation: fadeIn .5s ease;
+}
+
+/* ── Mitad izquierda: Orbit 3D ── */
+.login-left {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Gradiente oscuro en los bordes de la izquierda */
+.login-left::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at center, transparent 40%, rgba(2,4,8,.7) 100%),
+    linear-gradient(to right, transparent 70%, rgba(2,4,8,.6) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+#orbitCanvas {
+  width: 100% !important;
+  height: 100% !important;
+  position: absolute;
+  inset: 0;
+}
+
+/* Tag con nombre del personaje (abajo izquierda) */
+.orbit-name-tag {
+  position: absolute;
+  bottom: 2.5rem;
+  left: 2.5rem;
+  z-index: 2;
+  animation: fadeUp .8s ease .4s both;
+}
+
+.tag-line {
+  display: block;
+  font-size: .65rem;
+  letter-spacing: .25em;
+  color: var(--text-gold);
+  text-transform: uppercase;
+  margin-bottom: .15rem;
+}
+
+.tag-name {
+  display: block;
+  font-size: 3.5rem;
+  font-weight: 900;
+  letter-spacing: .1em;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  line-height: 1;
+  text-shadow: 0 0 30px var(--glow-blue), 0 0 60px rgba(26,143,227,.3);
+}
+
+.tag-sub {
+  display: block;
+  font-size: .72rem;
+  color: var(--text-muted);
+  letter-spacing: .15em;
+  margin-top: .35rem;
+}
+
+/* ── Divisor luminoso central ── */
+.login-divider {
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    var(--wf-gold-d) 20%,
+    var(--wf-gold) 50%,
+    var(--wf-gold-d) 80%,
+    transparent 100%
+  );
+  box-shadow: 0 0 12px var(--glow-gold);
+  position: relative;
+  z-index: 5;
+  flex-shrink: 0;
+}
+
+/* Línea de escaneo que baja por el divisor */
+.login-divider::after {
+  content: '';
+  position: absolute;
+  left: -1px;
+  width: 3px;
+  height: 60px;
+  background: linear-gradient(to bottom, transparent, var(--wf-cyan), transparent);
+  animation: scanLine 3s linear infinite;
+  box-shadow: 0 0 10px var(--glow-cyan);
+}
+
+/* ── Mitad derecha: formulario ── */
+.login-right {
+  flex: 0 0 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: linear-gradient(to left, rgba(6,12,24,.95) 60%, rgba(6,12,24,.7));
+  position: relative;
+  z-index: 5;
+}
+
+.login-form-wrap {
+  width: 100%;
+  max-width: 360px;
+  animation: slideInRight .6s ease .2s both;
+}
+
+/* Header del form */
+.login-header { margin-bottom: 2rem; }
+
+.login-logo-small {
+  font-size: 1.8rem;
+  margin-bottom: .75rem;
+}
+
+.login-header h1 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: .18em;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  margin-bottom: .4rem;
+}
+
+.login-header p {
+  font-size: .75rem;
+  color: var(--text-muted);
+  letter-spacing: .08em;
+}
+
+/* Botón estilo Warframe */
+.btn-wf {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: .85rem 1.5rem;
+  background: transparent;
+  border: 1px solid var(--wf-gold-d);
+  border-bottom: 2px solid var(--wf-gold);
+  color: var(--wf-gold-l);
+  font-size: .82rem;
+  font-weight: 700;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all .2s;
+  /* Clip angular */
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+  margin-top: .5rem;
+  outline: none;
+}
+
+.btn-wf:hover {
+  background: rgba(200,164,90,.1);
+  border-color: var(--wf-gold);
+  box-shadow: var(--shadow-gold);
+  color: #fff;
+}
+
+.btn-wf-inner { position: relative; z-index: 2; }
+
+.btn-wf-glow {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(200,164,90,.1), transparent);
+  opacity: 0;
+  transition: opacity .3s;
+}
+.btn-wf:hover .btn-wf-glow { opacity: 1; }
+
+.btn-wf-sm { width: auto; padding: .65rem 1.4rem; font-size: .75rem; }
+
+/* Error de login */
+.login-error {
+  background: rgba(239,68,68,.1);
+  border: 1px solid rgba(239,68,68,.3);
+  border-left: 3px solid #EF4444;
+  color: #FCA5A5;
+  padding: .6rem 1rem;
+  font-size: .8rem;
+  margin-top: .75rem;
+  letter-spacing: .04em;
+}
+
+/* Credenciales de prueba */
+.login-hints {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-dark);
+}
+
+.hints-title {
+  font-size: .65rem;
+  color: var(--text-dim);
+  letter-spacing: .2em;
+  text-align: center;
+  margin-bottom: .6rem;
+}
+
+.hints-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: .2rem .75rem;
+  font-size: .68rem;
+  color: var(--text-muted);
+}
+
+.hints-grid span:nth-child(odd)  { color: var(--text-muted); }
+.hints-grid span:nth-child(even) { color: var(--text-dim); text-align: right; }
+
+/* Ghost button */
+.btn-wf-ghost {
+  background: transparent;
+  border: 1px solid var(--border-mid);
+  color: var(--text-muted);
+  padding: .65rem 1.2rem;
+  font-size: .75rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all .18s;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+}
+.btn-wf-ghost:hover {
+  border-color: var(--text-muted);
+  color: var(--text-primary);
+}
+
+/* Responsive login */
+@media (max-width: 700px) {
+  .login-left    { display: none; }
+  .login-divider { display: none; }
+  .login-right   { flex: 1; padding: 1.5rem; }
+  body { overflow: auto; }
+}
